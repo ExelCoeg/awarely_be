@@ -1,6 +1,5 @@
 import os
 
-from dotenv import load_dotenv
 from flask import Flask
 
 from myapp.models import User 
@@ -8,8 +7,6 @@ from myapp.models import User
 from .extensions import db, login_manager
 from .routes import main
 
-
-load_dotenv() 
 
 def create_app():
     app = Flask(__name__)
