@@ -11,38 +11,44 @@ def home():
 
 
 
-@main.route('/register', methods=['GET', 'POST'])
+@main.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        if User.query.filter_by(email=email).first():
-            return "Email already registered", 400
+    # Accept JSON or form data
+    data = request.get_json() if request.is_json else request.form
 
-        new_user = User(email,username,password)
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user)
-        return redirect(url_for('main.me'))  # or wherever you want to redirect
+    email = data.get('email')
+    username = data.get('username')
+    password = data.get('password')
 
-    return render_template('register.html')
+    if not all([email, username, password]):
+        return jsonify({'error': 'Missing required fields'}), 400
 
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 400
 
-@main.route('/login', methods=['GET' ,'POST'])
+    new_user = User(email=email, username=username, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+    login_user(new_user)
+
+    return jsonify({'message': 'User registered successfully'}), 201
+
+@main.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')  # use form instead of json
-        password = request.form.get('password')
+    data = request.get_json() if request.is_json else request.form
+    email = data.get('email')
+    password = data.get('password')
 
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for('main.me'))  # Redirect to /me after login
-        return "Invalid credentials", 401
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
 
-    return render_template('login.html')  # Show login form
+    user = User.query.filter_by(email=email).first()
+    if user and user.check_password(password):
+        login_user(user)
+        return jsonify({'message': 'Logged in successfully'}), 200
+
+    return jsonify({'error': 'Invalid credentials'}), 401
+
 
 
 @main.route('/logout',methods=['POST'])
