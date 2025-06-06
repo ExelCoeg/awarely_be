@@ -25,6 +25,10 @@ def create_app():
         return User.query.get(int(user_id))
 
     app.register_blueprint(main)
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,        # Secure flag (only send cookies on HTTPS)
+        SESSION_COOKIE_SAMESITE='None',    # Allow cross-site cookies
+    )
 
 
     return app
