@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 
 from myapp.models import User 
 
@@ -17,7 +18,8 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
   
-
+    CORS(app, supports_credentials=True,origins=["https://awarely-black.vercel.app/"])
+    
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
