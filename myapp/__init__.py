@@ -18,7 +18,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
   
-    CORS(app, supports_credentials=True,origins=["https://awarely-black.vercel.app"])
+    CORS(app, supports_credentials=True,origins=["http://127.0.0.1:5500","https://awarely-black.vercel.app"])
     
     @login_manager.user_loader
     def load_user(user_id):
