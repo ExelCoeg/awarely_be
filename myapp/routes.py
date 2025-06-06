@@ -38,7 +38,6 @@ def login():
     data = request.get_json() if request.is_json else request.form
     email = data.get('email')
     password = data.get('password')
-    username = db.session.query(User.username).filter_by(email=email).first()
 
     if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400
@@ -46,7 +45,8 @@ def login():
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
         login_user(user)
-        return jsonify({'email':email,'username':username}), 200
+        
+        return jsonify({"message": "Logged in successfully","email":user.email,"username":user.username}), 200
 
     return jsonify({'error': 'Invalid credentials'}), 401
 
