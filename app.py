@@ -2,6 +2,5 @@ from myapp import create_app
 from flask_cors import CORS
 app = create_app()
 
-print("SECRET_KEY is:", app.config["SECRET_KEY"])
 
-# CORS(app, supports_credentials=true,origins)
+CORS(app, supports_credentials=True,origins=["http://127.0.0.1:5500", "https://awarely-black.vercel.app/"])
