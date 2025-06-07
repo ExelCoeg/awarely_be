@@ -1,7 +1,8 @@
 from flask import Blueprint, redirect, render_template, url_for,request,jsonify
 from flask_login import current_user, login_user, logout_user,login_required
 from .extensions import db
-from .models import User
+from .models import User, Report
+from datetime import datetime
 
 main = Blueprint('main', __name__)  
 
@@ -46,7 +47,7 @@ def login():
     if user and user.check_password(password):
         login_user(user)
         
-        return jsonify({"message": "Logged in successfully","email":user.email,"username":user.username}), 200
+        return jsonify({'message': 'Logged in successfully','email':user.email,'username':user.username}), 200
 
     return jsonify({'error': 'Invalid credentials'}), 401
 
@@ -74,3 +75,39 @@ def add_user(username):
     db.session.add(User(username=username))
     db.session.commit()
     return redirect(url_for("main.index"))
+
+
+
+
+
+@main.route('/report', methods=['POST'])
+@login_required  # Jika ingin hanya user login yang bisa buat laporan
+def create_report():
+    data = request.get_json() if request.is_json else request.form
+
+    contact = data.get('contact')
+    incident = data.get('incident')
+    assistance = data.get('assistance')  # 'Perlu' atau 'Tidak'
+    schedule_date = data.get('date')  # format: yyyy-mm-dd
+    schedule_time = data.get('time')  # format: HH:MM (24 jam)
+
+    # Validasi sederhana
+    if not contact or not incident or assistance is None:
+        return jsonify({'error': 'Field wajib tidak boleh kosong'}), 400
+
+    try:
+        report = Report(
+            contact=contact,
+            incident=incident,
+            assistance_needed=(assistance.lower() == 'perlu'),
+            user_id=current_user.id,
+            schedule_date=datetime.strptime(schedule_date, '%Y-%m-%d').date() if schedule_date else None,
+            schedule_time=datetime.strptime(schedule_time, '%H:%M').time() if schedule_time else None
+        )
+        db.session.add(report)
+        db.session.commit()
+
+        return jsonify({'message': 'Laporan berhasil dikirim'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
