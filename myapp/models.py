@@ -43,7 +43,7 @@ class Report(db.Model):
 
 
 class BaseCounseling(db.Model):
-    __abstract__ = True  # Important! This prevents SQLAlchemy from creating a table for this class
+    __abstract__ = True  
 
     
     id = db.Column(db.Integer, primary_key=True)
@@ -60,8 +60,7 @@ class BaseCounseling(db.Model):
     counselor_name = db.Column(db.String(50), nullable=True)
     contact = db.Column(db.String(20), nullable=False)
     incident = db.Column(db.Text, nullable=False)
-    availability = db.Column(db.Boolean, nullable=False)
-
+    availability = db.Column(db.String(10), nullable=False)
     schedule_date = db.Column(db.Date, nullable=True)
     schedule_time = db.Column(db.Time, nullable=True)
     submitted_at = db.Column(db.DateTime, default=db.func.now())

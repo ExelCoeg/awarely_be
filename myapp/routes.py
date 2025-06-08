@@ -91,9 +91,6 @@ def create_report():
     schedule_date = data.get('date')  # format: yyyy-mm-dd
     schedule_time = data.get('time')  # format: HH:MM (24 jam)
 
-    if not contact or not incident or assistance is None:
-        return jsonify({'error': 'Field wajib tidak boleh kosong'}), 400
-
     try:
         report = Report(
             contact=contact,
@@ -116,21 +113,19 @@ def handle_counseling_submission(model_class):
     data = request.get_json() if request.is_json else request.form
 
     contact = data.get('contact')
-    counselor = data.get('counselor')  # Nama konselor
+    counselor = data.get('counselor') 
     incident = data.get('incident')
-    flag_value = data.get('availability')  # 'Perlu' atau 'Tidak'
+    availability = data.get('availability') 
     schedule_date = data.get('date')
     schedule_time = data.get('time')
 
-    if not contact or not incident or flag_value is None:   
-        return jsonify({'error': 'Field wajib tidak boleh kosong'}), 400
 
     try:
         report = model_class(
             contact=contact,
             counselor_name=counselor,
             incident=incident,
-            availability=(flag_value.lower() == 'perlu'),
+            availability= availability,
             user_id=current_user.id,
             schedule_date=datetime.strptime(schedule_date, '%Y-%m-%d').date() if schedule_date else None,
             schedule_time=datetime.strptime(schedule_time, '%H:%M').time() if schedule_time else None
@@ -144,9 +139,11 @@ def handle_counseling_submission(model_class):
 
 
 @main.route('/ultksp_counseling', methods=['POST'])
+@login_required  # Jika ingin hanya user login yang bisa buat counseling
 def create_ultksp_counseling():
     return handle_counseling_submission(ULTKSPCounseling)
 
 @main.route('/rm_counseling', methods=['POST'])
+@login_required  # Jika ingin hanya user login yang bisa buat counseling
 def create_rm_counseling():
     return handle_counseling_submission(RMCounseling)
