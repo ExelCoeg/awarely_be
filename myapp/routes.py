@@ -1,9 +1,9 @@
-from flask import Blueprint, redirect, render_template, url_for,request,jsonify
+from flask import Blueprint, redirect, url_for,request,jsonify
 from flask_login import current_user, login_user, logout_user,login_required
 from .extensions import db
 from .models import User, Report
 from datetime import datetime
-
+from .models import ULTKSPCounseling, RMCounseling
 main = Blueprint('main', __name__)  
 
 @main.route('/')
@@ -91,7 +91,6 @@ def create_report():
     schedule_date = data.get('date')  # format: yyyy-mm-dd
     schedule_time = data.get('time')  # format: HH:MM (24 jam)
 
-    # Validasi sederhana
     if not contact or not incident or assistance is None:
         return jsonify({'error': 'Field wajib tidak boleh kosong'}), 400
 
@@ -111,3 +110,43 @@ def create_report():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+def handle_counseling_submission(model_class):
+    data = request.get_json() if request.is_json else request.form
+
+    contact = data.get('contact')
+    counselor = data.get('counselor')  # Nama konselor
+    incident = data.get('incident')
+    flag_value = data.get('availability')  # 'Perlu' atau 'Tidak'
+    schedule_date = data.get('date')
+    schedule_time = data.get('time')
+
+    if not contact or not incident or flag_value is None:   
+        return jsonify({'error': 'Field wajib tidak boleh kosong'}), 400
+
+    try:
+        report = model_class(
+            contact=contact,
+            counselor_name=counselor,
+            incident=incident,
+            availability=(flag_value.lower() == 'perlu'),
+            user_id=current_user.id,
+            schedule_date=datetime.strptime(schedule_date, '%Y-%m-%d').date() if schedule_date else None,
+            schedule_time=datetime.strptime(schedule_time, '%H:%M').time() if schedule_time else None
+        )
+        db.session.add(report)
+        db.session.commit()
+        return jsonify({'message': 'Laporan berhasil dikirim'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@main.route('/ultksp_counseling', methods=['POST'])
+def create_ultksp_counseling():
+    return handle_counseling_submission(ULTKSPCounseling)
+
+@main.route('/rm_counseling', methods=['POST'])
+def create_rm_counseling():
+    return handle_counseling_submission(RMCounseling)

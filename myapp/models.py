@@ -1,7 +1,8 @@
 from .extensions import db 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import date, time
+from sqlalchemy.ext.declarative import declared_attr
+
 
 class User(db.Model,UserMixin):
 
@@ -39,3 +40,34 @@ class Report(db.Model):
     schedule_time = db.Column(db.Time, nullable=True)  # Jadwal jam
 
     submitted_at = db.Column(db.DateTime, default=db.func.now())  # Waktu submit
+
+
+class BaseCounseling(db.Model):
+    __abstract__ = True  # Important! This prevents SQLAlchemy from creating a table for this class
+
+    
+    id = db.Column(db.Integer, primary_key=True)
+
+
+    @declared_attr
+    def user_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    @declared_attr
+    def user(cls):
+        return db.relationship('User', backref=db.backref(cls.__tablename__, lazy=True))
+
+    counselor_name = db.Column(db.String(50), nullable=True)
+    contact = db.Column(db.String(20), nullable=False)
+    incident = db.Column(db.Text, nullable=False)
+    availability = db.Column(db.Boolean, nullable=False)
+
+    schedule_date = db.Column(db.Date, nullable=True)
+    schedule_time = db.Column(db.Time, nullable=True)
+    submitted_at = db.Column(db.DateTime, default=db.func.now())
+
+class ULTKSPCounseling(BaseCounseling):
+    __tablename__ = 'ultksp_counselings'
+
+class RMCounseling(BaseCounseling):
+    __tablename__ = 'rm_counselings'
