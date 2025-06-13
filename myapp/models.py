@@ -10,11 +10,14 @@ class User(db.Model,UserMixin):
     username = db.Column(db.String(50),unique=True,nullable=False)
     email = db.Column(db.String(50),unique=True,nullable=False)
     password_hash = db.Column(db.String(512),nullable=False)
-    
-    def __init__(self,email,username,password):
+    is_admin = db.Column(db.Boolean, default=False)  # Menandakan apakah pengguna adalah admin
+
+
+    def __init__(self,email,username,password,is_admin=False):
         self.email = email
         self.username=username
         self.set_password(password)
+        self.is_admin = is_admin
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -28,7 +31,6 @@ class Report(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     
-    # Foreign key untuk mengaitkan laporan dengan pengguna (jika ada)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', backref=db.backref('reports', lazy=True))
 

@@ -29,6 +29,21 @@ def create_app():
         SESSION_COOKIE_SECURE=True,        # Secure flag (only send cookies on HTTPS)
         SESSION_COOKIE_SAMESITE='None',    # Allow cross-site cookies
     )
+    with app.app_context():
+        if not User.query.filter_by(is_admin=True).first():
+
+            admin_email = os.environ.get("ADMIN_EMAIL")
+            admin_username = os.environ.get("ADMIN_USERNAME")
+            admin_password = os.environ.get("ADMIN_PASSWORD")
+
+            admin = User(
+                email=admin_email,
+                username=admin_username,
+                password=admin_password,
+                is_admin=True
+            )
+            db.session.add(admin)
+            db.session.commit()
 
 
     return app

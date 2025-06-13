@@ -53,16 +53,18 @@ def login():
 
 
 
+
 @main.route('/logout',methods=['POST'])
 @login_required
 def logout():
     logout_user()
     return jsonify({"message" : "Logged out"}), 200
 
+
 @main.route('/me', methods=['GET'])
 @login_required
 def me():
-    return jsonify({"email": current_user.email, "username":current_user.username}), 200
+    return jsonify({"email": current_user.email, "username":current_user.username, "is_admin": current_user.is_admin}), 200
 
 @main.route('/users')
 def index():
