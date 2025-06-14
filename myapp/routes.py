@@ -169,9 +169,15 @@ def handle_counseling_submission(model_class):
 @main.route('/api/ultksp-counselings', methods=['GET'])
 @login_required
 def get_ultksp_counselings():
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    query = ULTKSPCounseling.query.order_by(ULTKSPCounseling.schedule_date.desc())
+    total = query.count()
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
     data = []
-    records = ULTKSPCounseling.query.order_by(ULTKSPCounseling.schedule_date.desc()).all()
-    for item in records:
+    for item in items:
         data.append({
             'id': item.id,
             'contact': item.contact,
@@ -180,32 +186,44 @@ def get_ultksp_counselings():
             'schedule_date': item.schedule_date.isoformat() if item.schedule_date else None,
             'schedule_time': item.schedule_time.strftime('%H:%M') if item.schedule_time else None,
             'availability': item.availability,
-            'status': item.status
+            'status': item.status,
         })
-    return jsonify({'data': data}), 200
+
+    return jsonify({
+        'data': data,
+        'total': total,
+        'page': page,
+        'limit': limit
+    }), 200
 
 
-@main.route('/api/ultksp-counselings/<int:id>', methods=['PUT'])
+@main.route('/api/ultksp-counselings/<int:id>/status', methods=['PUT'])
 @login_required
-def update_ultksp_status(id):
+def update_status_ultksp(id):
     counseling = ULTKSPCounseling.query.get_or_404(id)
-    new_status = request.json.get('status')
+    status = request.json.get('status')
 
-    if new_status not in ['pending', 'in_progress', 'completed']:
-        return jsonify({'error': 'Invalid status'}), 400
+    if status not in ['pending', 'in_progress', 'completed']:
+        return jsonify({'message': 'Status tidak valid'}), 400
 
-    counseling.status = new_status
+    counseling.status = status
     db.session.commit()
+    return jsonify({'message': 'Status berhasil diperbarui'}), 200
 
-    return jsonify({'message': 'Status updated successfully'}), 200
 
 
 @main.route('/api/rm-counselings', methods=['GET'])
 @login_required
 def get_rm_counselings():
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    query = RMCounseling.query.order_by(RMCounseling.schedule_date.desc())
+    total = query.count()
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
     data = []
-    records = RMCounseling.query.order_by(RMCounseling.schedule_date.desc()).all()
-    for item in records:
+    for item in items:
         data.append({
             'id': item.id,
             'contact': item.contact,
@@ -214,24 +232,31 @@ def get_rm_counselings():
             'schedule_date': item.schedule_date.isoformat() if item.schedule_date else None,
             'schedule_time': item.schedule_time.strftime('%H:%M') if item.schedule_time else None,
             'availability': item.availability,
-            'status': item.status
+            'status': item.status,
         })
-    return jsonify({'data': data}), 200
+
+    return jsonify({
+        'data': data,
+        'total': total,
+        'page': page,
+        'limit': limit
+    }), 200
 
 
-@main.route('/api/rm-counselings/<int:id>', methods=['PUT'])
+
+@main.route('/api/rm-counselings/<int:id>/status', methods=['PUT'])
 @login_required
-def update_rm_status(id):
+def update_status_rm(id):
     counseling = RMCounseling.query.get_or_404(id)
-    new_status = request.json.get('status')
+    status = request.json.get('status')
 
-    if new_status not in ['pending', 'in_progress', 'completed']:
-        return jsonify({'error': 'Invalid status'}), 400
+    if status not in ['pending', 'in_progress', 'completed']:
+        return jsonify({'message': 'Status tidak valid'}), 400
 
-    counseling.status = new_status
+    counseling.status = status
     db.session.commit()
+    return jsonify({'message': 'Status berhasil diperbarui'}), 200
 
-    return jsonify({'message': 'Status updated successfully'}), 200
 
 
 

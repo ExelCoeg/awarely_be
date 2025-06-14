@@ -15,7 +15,6 @@ def create_app():
     app = Flask(__name__)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    #postgresql://awarely_postgresql_user:sLeviYCZm620wh3UQp6OwDpsXiuOAKmz@dpg-d0qielje5dus739jh6fg-a.oregon-postgres.render.com/awarely_postgresql
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     db.init_app(app)
     login_manager.init_app(app)
@@ -28,8 +27,8 @@ def create_app():
 
     app.register_blueprint(main)
     app.config.update(
-        SESSION_COOKIE_SECURE=True,        # Secure flag (only send cookies on HTTPS)
-        SESSION_COOKIE_SAMESITE='None',    # Allow cross-site cookies
+        SESSION_COOKIE_SECURE=True,        
+        SESSION_COOKIE_SAMESITE='None',    
     )
     with app.app_context():
         if not User.query.filter_by(is_admin=True).first():

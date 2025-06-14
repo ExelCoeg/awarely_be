@@ -10,7 +10,7 @@ class User(db.Model,UserMixin):
     username = db.Column(db.String(50),unique=True,nullable=False)
     email = db.Column(db.String(50),unique=True,nullable=False)
     password_hash = db.Column(db.String(512),nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # Menandakan apakah pengguna adalah admin
+    is_admin = db.Column(db.Boolean, default=False) 
 
 
     def __init__(self,email,username,password,is_admin=False):
@@ -34,14 +34,14 @@ class Report(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', backref=db.backref('reports', lazy=True))
 
-    contact = db.Column(db.String(20), nullable=False)  # WhatsApp/Line
-    incident = db.Column(db.Text, nullable=False)       # Cerita kejadian
-    assistance_needed = db.Column(db.Boolean, nullable=False)  # Perlu bantuan?
+    contact = db.Column(db.String(20), nullable=False)  
+    incident = db.Column(db.Text, nullable=False)       
+    assistance_needed = db.Column(db.Boolean, nullable=False)  
     
-    schedule_date = db.Column(db.Date, nullable=True)  # Jadwal tanggal
-    schedule_time = db.Column(db.Time, nullable=True)  # Jadwal jam
+    schedule_date = db.Column(db.Date, nullable=True)  
+    schedule_time = db.Column(db.Time, nullable=True)  
 
-    submitted_at = db.Column(db.DateTime, default=db.func.now())  # Waktu submit
+    submitted_at = db.Column(db.DateTime, default=db.func.now())  
 
 
 class BaseCounseling(db.Model):
@@ -66,7 +66,7 @@ class BaseCounseling(db.Model):
     schedule_date = db.Column(db.Date, nullable=True)
     schedule_time = db.Column(db.Time, nullable=True)
     submitted_at = db.Column(db.DateTime, default=db.func.now())
-    status = db.Column(db.String(20), default='pending')  # Status counseling (pending, in_progress, completed)
+    status = db.Column(db.String(20), default='pending')  
 
 class ULTKSPCounseling(BaseCounseling):
     __tablename__ = 'ultksp_counselings'
