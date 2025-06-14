@@ -66,6 +66,7 @@ class BaseCounseling(db.Model):
     schedule_date = db.Column(db.Date, nullable=True)
     schedule_time = db.Column(db.Time, nullable=True)
     submitted_at = db.Column(db.DateTime, default=db.func.now())
+    status = db.Column(db.String(20), default='pending')  # Status counseling (pending, in_progress, completed)
 
 class ULTKSPCounseling(BaseCounseling):
     __tablename__ = 'ultksp_counselings'

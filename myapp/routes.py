@@ -80,6 +80,35 @@ def add_user(username):
 
 
 
+@main.route('/api/reports', methods=['GET'])
+@login_required
+def get_reports():
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    query = Report.query.order_by(Report.submitted_at.desc())
+    total = query.count()
+    reports = query.offset((page - 1) * limit).limit(limit).all()
+
+    data = []
+    for report in reports:
+        data.append({
+            'id': report.id,
+            'contact': report.contact,
+            'incident': report.incident,
+            'assistance_needed': report.assistance_needed,
+            'schedule_date': report.schedule_date.isoformat() if report.schedule_date else None,
+            'schedule_time': report.schedule_time.strftime('%H:%M') if report.schedule_time else None,
+        })
+
+    return jsonify({
+        'data': data,
+        'total': total,
+        'page': page,
+        'limit': limit
+    })
+
+
 
 
 @main.route('/report', methods=['POST'])
