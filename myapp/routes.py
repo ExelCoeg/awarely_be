@@ -106,7 +106,7 @@ def get_reports():
         'total': total,
         'page': page,
         'limit': limit
-    })
+    }), 201
 
 
 
