@@ -2,12 +2,14 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 from myapp.models import User 
 
 from .extensions import db, login_manager
 from .routes import main
 
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -19,10 +21,8 @@ def create_app():
     login_manager.init_app(app)
   
     CORS(app, supports_credentials=True,origins=["http://127.0.0.1:5500","https://awarely-black.vercel.app"])
+    migrate.init_app(app, db)
     
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
 
     app.register_blueprint(main)
     app.config.update(

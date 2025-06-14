@@ -10,8 +10,6 @@ main = Blueprint('main', __name__)
 def home():
     return "hello world!"
 
-
-
 @main.route('/register', methods=['POST'])
 def register():
     # Accept JSON or form data
@@ -106,7 +104,7 @@ def get_reports():
         'total': total,
         'page': page,
         'limit': limit
-    }), 201
+    }), 200
 
 
 
@@ -167,6 +165,74 @@ def handle_counseling_submission(model_class):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@main.route('/api/ultksp-counselings', methods=['GET'])
+@login_required
+def get_ultksp_counselings():
+    data = []
+    records = ULTKSPCounseling.query.order_by(ULTKSPCounseling.schedule_date.desc()).all()
+    for item in records:
+        data.append({
+            'id': item.id,
+            'contact': item.contact,
+            'incident': item.incident,
+            'counselor_name': item.counselor_name,
+            'schedule_date': item.schedule_date.isoformat() if item.schedule_date else None,
+            'schedule_time': item.schedule_time.strftime('%H:%M') if item.schedule_time else None,
+            'availability': item.availability,
+            'status': item.status
+        })
+    return jsonify({'data': data}), 200
+
+
+@main.route('/api/ultksp-counselings/<int:id>', methods=['PUT'])
+@login_required
+def update_ultksp_status(id):
+    counseling = ULTKSPCounseling.query.get_or_404(id)
+    new_status = request.json.get('status')
+
+    if new_status not in ['pending', 'in_progress', 'completed']:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    counseling.status = new_status
+    db.session.commit()
+
+    return jsonify({'message': 'Status updated successfully'}), 200
+
+
+@main.route('/api/rm-counselings', methods=['GET'])
+@login_required
+def get_rm_counselings():
+    data = []
+    records = RMCounseling.query.order_by(RMCounseling.schedule_date.desc()).all()
+    for item in records:
+        data.append({
+            'id': item.id,
+            'contact': item.contact,
+            'incident': item.incident,
+            'counselor_name': item.counselor_name,
+            'schedule_date': item.schedule_date.isoformat() if item.schedule_date else None,
+            'schedule_time': item.schedule_time.strftime('%H:%M') if item.schedule_time else None,
+            'availability': item.availability,
+            'status': item.status
+        })
+    return jsonify({'data': data}), 200
+
+
+@main.route('/api/rm-counselings/<int:id>', methods=['PUT'])
+@login_required
+def update_rm_status(id):
+    counseling = RMCounseling.query.get_or_404(id)
+    new_status = request.json.get('status')
+
+    if new_status not in ['pending', 'in_progress', 'completed']:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    counseling.status = new_status
+    db.session.commit()
+
+    return jsonify({'message': 'Status updated successfully'}), 200
+
 
 
 @main.route('/ultksp_counseling', methods=['POST'])
