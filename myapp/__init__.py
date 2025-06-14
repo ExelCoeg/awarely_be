@@ -22,7 +22,9 @@ def create_app():
   
     CORS(app, supports_credentials=True,origins=["http://127.0.0.1:5500","https://awarely-black.vercel.app"])
     migrate.init_app(app, db)
-    
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     app.register_blueprint(main)
     app.config.update(
