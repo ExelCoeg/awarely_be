@@ -8,14 +8,16 @@ from myapp.models import User
 
 from .extensions import db, login_manager
 from .routes import main
+from dotenv import load_dotenv
+import os
 
 migrate = Migrate()
+load_dotenv() 
 
 def create_app():
     app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     db.init_app(app)
     login_manager.init_app(app)
   
